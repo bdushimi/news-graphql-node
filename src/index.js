@@ -1,16 +1,19 @@
 const { ApolloServer } = require('apollo-server');
 const { PrismaClient } = require('@prisma/client')
+const { PubSub } = require('apollo-server');
 const { getUserId } = require('./utils');
 const Query = require('./resolvers/Query');
 const Mutation = require('./resolvers/Mutation');
 const Link = require('./resolvers/Link');
 const User = require('./resolvers/User');
+const Subscription = require('./resolvers/Subscription');
 
 const fs = require('fs');
 const path = require('path');
 
 
 const prisma = new PrismaClient();
+const pubsub = new PubSub();
 
 // Defining a schema using SDLs (Schema Definition Language)
 // Every GraphQL schema has three special root types: Query, Mutation, and Subscription
@@ -83,7 +86,8 @@ const resolvers = {
     Query,
     Mutation,
     Link,
-    User
+    User,
+    Subscription
 }
 
 const server = new ApolloServer({
@@ -96,6 +100,7 @@ const server = new ApolloServer({
         return {
             ...req,
             prisma,
+            pubsub,
             userId: req && req.headers.authorization ? getUserId(req) : null
         };
     }
